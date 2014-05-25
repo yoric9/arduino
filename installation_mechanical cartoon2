@@ -1,40 +1,14 @@
 
 
-//interrupt -->arduino 
-//separate default functions later??
-// continous:change direction and speed from the middle value.
-
-
-// Questions
-//pinMode (buttonPin, INPUT_PULLUP);?? should write pullup??
-//at SETUP, even timeNow cannot be written? then where?? Where should I start the timer??
-//Where should I resest the frameStarted to faulse? at the end of each function??
-//about repeating a few times...for function in frame4...
-// to make frame on for the whole animation
-//in this code animation works only while the switch being pushed.?!?
-
-
-//to do's
-//figure out the direction of the directional servo movements. 
-//define   long timeNow; on the top (outside the setup)
-//each fuction run simply by specific angle and the timer works only in loop. for example,  
-/*if (2000<duration && duration<4000){
- frame2();
- }*/
-
-//for each if else, write down everyother frames that doesn't work at the moment and led's on
-//for the reciprocal mov. just say position and delay
-//we used interrupt, and debounce of Arduino
-
-
-//servo value: (152,155)-565( dir big), 185-565(dir small), 400=0(continuous...455 is appropriate for the clockwise)
+//for the exact functioning of the button-->debounce & interrupt
+//servo value: (152,155)-565( dir big),145-600 ( dir big2-Datan)185-565(dir small), 400=0(continuous...455 is appropriate for the clockwise)
 
 //frame2 400,460
 //frame3 400,350 (counterclockwise for dog)
 //frame4 157,320
 //frame5 185,480
 //frame7 155, 470
-//frame8 152,3,4,~253
+//frame8 152,3,4,~253 new (160-260)
 
 //pins: 14,15: leds of panel1
 //pin1,2 :panel 2 (cyclists)
@@ -61,7 +35,8 @@ long trigger;
 
 
 //set up the default value here, l for leds, m for servos
-int d[8] = { 0,0,400,400,155,185,155,155};
+
+int d[8] = { 0,0,400,400,151,185,160,255};
 
 //define state(for toggle button) and debounce time(for reading signal )
 volatile int state = LOW;
@@ -96,7 +71,7 @@ void loop() {
 
   if (state == 0){ 
     defaultValues();
-    Serial.println("stopped");
+    //Serial.println("stopped");
     aniStarted = false;
   }else{
     
@@ -110,67 +85,134 @@ void loop() {
     }
     
     long duration = millis()-start;
-    Serial.print("dur: ");
-    Serial.println(duration);
+   // Serial.print("dur: ");
+   // Serial.println(duration);
     //leds from frame 1 should be on during the whole play
 
     // 0-4
     // 4-7
-    if (duration<=4000 ){
+    //frame1(leds)
+    if (duration<=2000 ){
       frame1();
     }
-    else if (duration>4000 && duration < 6000 ){
+    //frame2(bicycles)
+    else if (duration>2000 && duration < 4800 ){
       frame1();
-      pwm.setPWM(1, 0, 445);
-      pwm.setPWM(2, 0, 445);
+      pwm.setPWM(1, 0, 495);
+      pwm.setPWM(2, 0, 495);
     }
     
-    else if(duration >=6000 && duration < 10000){
+    //frame3(dog);
+    else if (duration>=4800 && duration < 8500 ){
+      frame1();
+      pwm.setPWM(1, 0, d[2]);
+      pwm.setPWM(2, 0, d[2]);
+      
+      delay(200);
+      pwm.setPWM(3, 0, 368);
+      
+    }
+    
+  //frame4(workers)
+    else if(duration >=8500 && duration < 10500){
      //the other frames that doesn't move
+     pwm.setPWM(1, 0, d[2]);
      pwm.setPWM(2, 0, d[2]);
+     pwm.setPWM(3, 0, d[3]);
      
      //reciprocal mov. 
-     pwm.setPWM(4, 0, 150);
-     delay(1000);
-     pwm.setPWM(4, 0, 400);
-     delay(1000);
-     pwm.setPWM(4, 0, 150);
-     delay(1000);
-     pwm.setPWM(4, 0, 400);
-     delay(1000);
-     //frame3();
+     //pwm.setPWM(4, 0, 152);
+     //delay(1000);
+     delay(600);
+     pwm.setPWM(4, 0, 500);
+     delay(800);
+     pwm.setPWM(4, 0, 154);
+     delay(800);
+     pwm.setPWM(4, 0, 500);
+     delay(800);
+      pwm.setPWM(4, 0, 154);
+     delay(800);
+   
+     
+  
      }
-      else if(duration >=10000 && duration < 13000){
+     
+     //frame5 (tram)
+     else if(duration >=10500 && duration < 13000){
+       Serial.println("tram");
      //the other frames that doesn't move
      frame1();
+     pwm.setPWM(1, 0, d[2]);
      pwm.setPWM(2, 0, d[2]);
+     pwm.setPWM(3, 0, d[3]);
      pwm.setPWM(4, 0, d[4]);
      
      //reciprocal mov. 
-     pwm.setPWM(5, 0, 185);
-     delay(1000);
+     
      pwm.setPWM(5, 0, 480);
-     delay(1000);
+     delay(600);
      pwm.setPWM(5, 0, 185);
-     delay(1000);
+     delay(600);
      pwm.setPWM(5, 0, 480);
-     delay(1000);
-     //frame3();
+     delay(600);
+     pwm.setPWM(5, 0, 185);
+     delay(600);
+     pwm.setPWM(5, 0, 480);
+     delay(600);
+     pwm.setPWM(5, 0, 185);
+     delay(600);
+     pwm.setPWM(5, 0, 480);
+    
+      duration = millis()-start;
+    Serial.print("dur: ");
+    Serial.println(duration);
+    
      }
-     /*else if(time3<duration <time4){
-     frame4();
-     }else if(time4<duration <time5){
-     frame5();
-     }else if(time5<duration <time7){
-     frame7();
-     }else if(time7<duration <time8){
-     frame8();
+     
+      //frame7 (umbrella)
+      else if(duration >= 15000 && duration < 17000){
+        Serial.println("umbrella");
+     //the other frames that doesn't move
+     frame1();
+     pwm.setPWM(1, 0, d[2]);
+     pwm.setPWM(2, 0, d[2]);
+     pwm.setPWM(3, 0, d[3]);
+     pwm.setPWM(4, 0, d[4]);
+     pwm.setPWM(5, 0, d[5]);
+     //reciprocal mov. 
+      delay(400);
+     pwm.setPWM(7, 0, 470);
+     delay(1300);
+     pwm.setPWM(7, 0, 145);
+     delay(1300);
+     pwm.setPWM(7, 0, 470);
+     delay(1300);
+     
+    
      }
+      //frame8 (camera)
+      else if(duration >= 20000 && duration < 22000){
+        Serial.println("camera");
+     //the other frames that doesn't move
+     frame1();
+     pwm.setPWM(1, 0, d[2]);
+     pwm.setPWM(2, 0, d[2]);
+     pwm.setPWM(3, 0, d[3]);
+     pwm.setPWM(4, 0, d[4]);
+     pwm.setPWM(5, 0, d[5]);
+      pwm.setPWM(7, 0, d[6]);
+     
+     //reciprocal mov. 
+    
+    delay(1500); 
+     pwm.setPWM(8, 0, 160);
+     delay(2000);
+     pwm.setPWM(8, 0, 255);
      
      
      }
      
-     */
+  
     else{
       //reset the values
       //defaultValues(); 
@@ -223,113 +265,5 @@ void frame1(){
   pwm.setPWM(15, 0, 4000);
 
 }
-
-
-//for Cyclists pin#1,2
-
-
-void frame2(){
-
-  if(frameStarted == false){
-    trigger= millis();
-    frameStarted = true;
-  }
-
-  long runTime= millis()-trigger;
-  if(runTime >0 && runTime <2000){
-    pwm.setPWM(1, 0, 445);
-    pwm.setPWM(2, 0, 445);
-  }
-  else{ 
-    pwm.setPWM(1, 0, 400);
-    pwm.setPWM(2, 0, 400);
-    frameStarted = false;
-  }
-  //resetting the frameStarted to false
-}
-
-
-/*
-
- //for dog pin#3(dog rotates counterclockwise)
- void frame3(){
- 
- long start = millis();
- long runTime = millis()-start;
- 
- if (runTime <2000){
- pwm.setPWM(3, 0, 355);
- }else{
- pwm.setPWM(3, 0, 400);
- }
- }
- 
- //for workers pin#4 degree 40 = pulselength 246
- //workers moves for 3 times
- void frame4(){
- 
- 
- long start = millis();
- long runTime = millis()-start;
- 
- if (runTime <2000){
- for (int i=0;i<3;i++){
- pwm.setPWM(4, 0, 246);
- delay(100);
- pwm.setPWM(4, 0, 155);
- delay(50);
- }
- }
- }
- 
- //for tram pin#5 120 degree= 438 pulselength
- //tram moves for 4 times
- //tram uses the smaller servo of which lowest value is 185
- void frame5(){
- 
- long start = millis();
- long runTime = millis()-start;
- 
- if (runTime <2000){
- for (int i=0;i<4;i++){
- pwm.setPWM(5, 0, 435);
- delay(10);
- pwm.setPWM(5, 0, 185);
- delay(10);
- }
- }
- }
- 
- //for umbrella pin#7 90degrees=360pulselength
- void frame7(){
- 
- long start = millis();
- long runTime = millis()-start;
- 
- if (runTime <2000){
- for (int i=0;i<2;i++){
- pwm.setPWM(7, 0, 360);
- delay(100);
- pwm.setPWM(7, 0, 155);
- delay(50);
- }
- }
- }
- 
- 
- //for camera pin#8 17degrees=193 pulselength
- void frame8(){
- 
- long start = millis();
- long runTime = millis()-start;
- 
- if (runTime <2000){
- 
- pwm.setPWM(8, 0, 193);
- delay(200);
- pwm.setPWM(8, 0, 155);
- }
- }
- */
 
 
